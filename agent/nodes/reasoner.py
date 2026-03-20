@@ -1,9 +1,11 @@
-from langchain_core.messages import SystemMessage, AIMessage
-from agent.state import AgentState
-from agent.tools import get_all_tools
+import json
+
+from langchain_core.messages import AIMessage, SystemMessage
+
 from agent.llm import llm
 from agent.prompts.reasoner_prompt import get_reasoner_prompt
-import json
+from agent.state import AgentState
+from agent.tools import get_all_tools
 
 tools = get_all_tools()
 tool_names = [t.name for t in tools]
@@ -29,37 +31,15 @@ def reasoner(state: AgentState) -> dict:
         plan[current_step] if current_step < len(plan) else "All steps complete"
     )
 
-    system_prompt = f"""You are a reasoning agent working through a plan step by step.
-
-Current task: {current_task}
-Step {current_step + 1} of {len(plan)}
-
-Full plan:
-{chr(10).join(f"{i+1}. {s}" for i, s in enumerate(plan))}
-
-Tool results so far:
-{tool_results_summary if tool_results_summary else "None yet"}
-
-Reflection notes from previous loop:
-{reflection_notes if reflection_notes else "None"}
-
-Available tools: {tool_names}
-
-Your job: Decide what to do next.
-
-Respond in this EXACT JSON format, nothing else:
-{{
-  "thought": "your reasoning here",
-  "action": "tool_name OR 'reflect'",
-  "action_input": "input for the tool, or empty string if action is reflect",
-  "answer_draft": "your current best answer based on what you know so far"
-}}
-
-Rules:
-- If you need information → pick a tool from {tool_names}
-- If you have enough info for this step → action should be "reflect"
-- action_input must be a plain string, not a dict
-"""
+    system_prompt = get_reasoner_prompt(
+        current_task=current_task,
+        current_step=current_step,
+        total_steps=len(plan),
+        plan=plan,
+        tool_results_summary=tool_results_summary,
+        reflection_notes=reflection_notes,
+        tool_names=tool_names,
+    )
 
     response = llm.invoke([SystemMessage(content=system_prompt)])
 

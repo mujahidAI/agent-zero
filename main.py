@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from fastapi import FastAPI
+
 from routers.agent import router as agent_router
 
 app = FastAPI(

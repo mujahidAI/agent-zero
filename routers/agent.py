@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException
-from schema.schemas import GoalRequest, AgentResponse
+
 from agent.graph import agent_graph
+from schema.schemas import AgentResponse, GoalRequest
 
 router = APIRouter()
 
