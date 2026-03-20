@@ -27,7 +27,8 @@ agent-zero/
 ├── routers/
 │   └── agent.py                    # /run and /health endpoints
 ├── agent/
-│   ├── llm.py                      # Shared LLM instance
+│   ├── dependencies.py             # Dependency injection providers
+│   ├── llm.py                      # LLM provider (get_llm)
 │   ├── state.py                    # AgentState TypedDict
 │   ├── graph.py                    # LangGraph wiring
 │   ├── nodes/
@@ -96,6 +97,17 @@ Response:
 **GET** `/health` — Health check
 
 **GET** `/docs` — Swagger UI
+
+## Architecture
+
+The project uses **dependency injection** — no hardcoded globals:
+
+- **`agent/llm.py`** — `get_llm()` returns the LLM instance (cached via `@lru_cache`)
+- **`agent/dependencies.py`** — centralized providers: `get_tool_map()`, `get_tool_names()`, `get_agent_graph()`
+- **Router** — uses FastAPI `Depends(get_agent_graph)` to inject the graph
+- **Nodes** — call `get_llm()` and `get_tool_names()` at runtime, not import time
+
+This makes testing, model swapping, and tool changes easy — modify one provider function, everything picks it up.
 
 ## Tech Stack
 
