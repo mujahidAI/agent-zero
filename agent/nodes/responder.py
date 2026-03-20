@@ -1,6 +1,6 @@
 from langchain_core.messages import AIMessage, SystemMessage
 
-from agent.llm import llm
+from agent.llm import get_llm
 from agent.prompts.responder_prompt import get_responder_prompt
 from agent.state import AgentState
 
@@ -25,7 +25,7 @@ def responder(state: AgentState) -> dict:
         iteration_count=iteration_count,
     )
 
-    response = llm.invoke([SystemMessage(content=system_prompt)])
+    response = get_llm().invoke([SystemMessage(content=system_prompt)])
     final_answer = response.content
 
     return {

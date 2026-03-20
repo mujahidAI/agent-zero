@@ -13,10 +13,9 @@ def route_reasoner(state: AgentState) -> str:
     decision = state.get("_decision", {})
     action = decision.get("action", "reflect")
 
-    from agent.tools import get_all_tools
-    tool_names = [t.name for t in get_all_tools()]
+    from agent.dependencies import get_tool_names
 
-    if action in tool_names:
+    if action in get_tool_names():
         return "tool_executor"
     return "reflector"
 
@@ -68,7 +67,3 @@ def build_graph() -> StateGraph:
     graph.add_edge("responder", END)
 
     return graph.compile()
-
-
-# Compiled graph instance — imported by FastAPI
-agent_graph = build_graph()

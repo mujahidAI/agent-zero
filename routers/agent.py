@@ -1,13 +1,13 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 
-from agent.graph import agent_graph
+from agent.dependencies import get_agent_graph
 from schema.schemas import AgentResponse, GoalRequest
 
 router = APIRouter()
 
 
 @router.post("/run", response_model=AgentResponse)
-async def run_agent(request: GoalRequest):
+async def run_agent(request: GoalRequest, graph=Depends(get_agent_graph)):
     if not request.goal.strip():
         raise HTTPException(status_code=400, detail="Goal cannot be empty")
 
@@ -25,7 +25,7 @@ async def run_agent(request: GoalRequest):
             "final_answer": "",
         }
 
-        result = await agent_graph.ainvoke(initial_state)
+        result = await graph.ainvoke(initial_state)
 
         steps_taken = [
             f"[{r['tool']}] {r['input'][:80]}" for r in result.get("tool_results", [])

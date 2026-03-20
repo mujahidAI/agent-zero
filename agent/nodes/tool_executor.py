@@ -1,16 +1,14 @@
 from langchain_core.messages import HumanMessage
 
+from agent.dependencies import get_tool_map
 from agent.state import AgentState
-from agent.tools import get_all_tools
-
-tools = get_all_tools()
-tool_map = {t.name: t for t in tools}
 
 
 def tool_executor(state: AgentState) -> dict:
     decision = state.get("_decision", {})
     tool_name = decision.get("action", "")
     tool_input = decision.get("action_input", "")
+    tool_map = get_tool_map()
 
     if tool_name not in tool_map:
         result = f"Tool '{tool_name}' not found. Available: {list(tool_map.keys())}"

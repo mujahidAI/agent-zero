@@ -2,13 +2,10 @@ import json
 
 from langchain_core.messages import AIMessage, SystemMessage
 
-from agent.llm import llm
+from agent.dependencies import get_tool_names
+from agent.llm import get_llm
 from agent.prompts.reasoner_prompt import get_reasoner_prompt
 from agent.state import AgentState
-from agent.tools import get_all_tools
-
-tools = get_all_tools()
-tool_names = [t.name for t in tools]
 
 
 def reasoner(state: AgentState) -> dict:
@@ -38,10 +35,10 @@ def reasoner(state: AgentState) -> dict:
         plan=plan,
         tool_results_summary=tool_results_summary,
         reflection_notes=reflection_notes,
-        tool_names=tool_names,
+        tool_names=get_tool_names(),
     )
 
-    response = llm.invoke([SystemMessage(content=system_prompt)])
+    response = get_llm().invoke([SystemMessage(content=system_prompt)])
 
     # Safely parse JSON response
     try:

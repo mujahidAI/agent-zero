@@ -2,7 +2,7 @@ import json
 
 from langchain_core.messages import AIMessage, SystemMessage
 
-from agent.llm import llm
+from agent.llm import get_llm
 from agent.prompts.reflector_prompt import get_reflector_prompt
 from agent.state import AgentState
 
@@ -18,7 +18,10 @@ def reflector(state: AgentState) -> dict:
     tool_results_summary = ""
     if tool_results:
         for r in tool_results:
-            tool_results_summary += f"\n- [{r['tool']}] Input: {r['input']}\n  Result: {r['result'][:400]}"
+            tool_results_summary += (
+                f"\n- [{r['tool']}] Input: {r['input']}"
+                f"\n  Result: {r['result'][:400]}"
+            )
 
     system_prompt = get_reflector_prompt(
         goal=goal,
@@ -28,7 +31,7 @@ def reflector(state: AgentState) -> dict:
         iteration_count=iteration_count,
     )
 
-    response = llm.invoke([SystemMessage(content=system_prompt)])
+    response = get_llm().invoke([SystemMessage(content=system_prompt)])
 
     # Safely parse JSON
     try:

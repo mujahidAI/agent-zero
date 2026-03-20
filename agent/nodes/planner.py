@@ -1,6 +1,6 @@
 from langchain_core.messages import HumanMessage, SystemMessage
 
-from agent.llm import llm
+from agent.llm import get_llm
 from agent.prompts.planner_prompt import PLANNER_SYSTEM
 from agent.state import AgentState
 
@@ -13,7 +13,7 @@ def planner(state: AgentState) -> dict:
         HumanMessage(content=f"Goal: {goal}"),
     ]
 
-    response = llm.invoke(messages)
+    response = get_llm().invoke(messages)
     raw_plan = response.content
 
     # Parse numbered list into a clean Python list
