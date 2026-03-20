@@ -1,6 +1,14 @@
-def main():
-    print("Hello from agent-zero!")
+from dotenv import load_dotenv
 
+load_dotenv()
 
-if __name__ == "__main__":
-    main()
+from fastapi import FastAPI
+from routers.agent import router as agent_router
+
+app = FastAPI(
+    title="agent-zero",
+    description="A ReAct agent built with LangGraph",
+    version="1.0.0",
+)
+
+app.include_router(agent_router)
