@@ -1,0 +1,40 @@
+# Version control
+.git
+.gitignore
+
+# Virtual env (built inside Docker)
+.venv
+
+# Python caches
+__pycache__
+*.pyc
+*.pyo
+
+# Tooling caches
+.ruff_cache
+.mypy_cache
+.pytest_cache
+
+# Environment files (secrets — pass via docker run --env-file)
+.env
+.env.*
+!.env.example
+
+# IDE / Editor
+.vscode
+.idea
+*.swp
+*.swo
+
+# Docker files (no need to copy into image)
+Dockerfile
+docker-compose*.yml
+.dockerignore
+
+# OS junk
+Thumbs.db
+.DS_Store
+
+# Docs / metadata
+README.md
+LICENSE
