@@ -1,6 +1,6 @@
 # Agent Zero
 
-A ReAct (Reason + Act) agent built with **LangGraph** and **FastAPI**, powered by **Llama 3.3 70B** via Groq.
+A **FastAPI** service that runs a ReAct (Reason + Act) agent: **LangGraph** orchestrates the workflow, **Groq** hosts **Llama 3.3 70B**, and **Tavily** provides web search. Dependencies are managed with **uv**; the app ships in a **multi-stage Docker** image based on `python:3.12-slim`.
 
 ## How It Works
 
@@ -23,7 +23,8 @@ User Goal
 ```
 agent-zero/
 ├── main.py                         # FastAPI app + router registration
-├── schemas.py                      # Pydantic request/response models
+├── schema/
+│   └── schemas.py                  # Pydantic request/response models
 ├── routers/
 │   └── agent.py                    # /run and /health endpoints
 ├── agent/
@@ -67,8 +68,22 @@ cp .env.example .env
 
 ## Run
 
+**Local (development)**
+
 ```bash
 uv run uvicorn main:app --reload
+```
+
+**Docker**
+
+Build and run the production image (same layout as CI):
+
+```bash
+docker build -t agent-zero .
+docker run --rm -p 8000:8000 \
+  -e GROQ_API_KEY=... \
+  -e TAVILY_API_KEY=... \
+  agent-zero
 ```
 
 ## API
@@ -98,6 +113,10 @@ Response:
 
 **GET** `/docs` — Swagger UI
 
+## Deployment
+
+CI deploys on push to `master` (Docker Hub → Oracle VM; keys via GitHub secrets). **Live:** [http://141.148.79.204:8000/docs](http://141.148.79.204:8000/docs)
+
 ## Architecture
 
 The project uses **dependency injection** — no hardcoded globals:
@@ -111,8 +130,13 @@ This makes testing, model swapping, and tool changes easy — modify one provide
 
 ## Tech Stack
 
-- **LLM**: Llama 3.3 70B via Groq
-- **Framework**: LangGraph + FastAPI
-- **Tools**: Tavily Search, Calculator, File Reader
-- **Package Manager**: uv
-- **Linting**: Ruff
+| Area | Choice |
+|------|--------|
+| Runtime | Python 3.12 |
+| API | FastAPI |
+| Agent | LangGraph (ReAct-style loop) |
+| LLM | Llama 3.3 70B via Groq |
+| Web search | Tavily |
+| Other tools | Calculator, file reader |
+| Packaging | uv; multi-stage Docker (`python:3.12-slim`) |
+| Linting | Ruff |
